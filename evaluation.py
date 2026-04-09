@@ -1,4 +1,4 @@
-from rag_pipeline import rag_pipeline,retriever
+from rag_pipeline import rag_pipeline,hybrid_retriever
 from eval_data import eval_data
 from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -16,8 +16,7 @@ from ragas.metrics import (
 
 load_dotenv()
 
-retrieved = retriever()
-
+#had to use an embeddin wrapper because ragas was not able to fetch openai embeddings 
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 ragas_embeddings = LangchainEmbeddingsWrapper(embedding_model)
 
@@ -33,7 +32,7 @@ for i in eval_data:
     ques = i["question"]
     gt = i["ground_truth"]
 
-    search_results = retrieved.invoke(ques)
+    search_results = hybrid_retriever(ques)
     retrieved_context = [item.page_content for item in search_results]
     
     ans = rag_pipeline(ques)
